@@ -110,6 +110,7 @@ class XAControlServerRequest(Request):
         return None
 
 class XAControlServerApp(object):
+    testing = False
     debug = True
     validKeyCache = {"DOOR001": "AUALUON"}
     operators = {}
@@ -158,3 +159,11 @@ class XAControlServerApp(object):
             "MEMORY_USAGE": ownMemoryUsage,
         }
 
+    @staticmethod
+    @RestService("/relay/{CHANNEL:int}/{STATE:int}")
+    def relay_POST(request=None, CHANNEL=None, STATE=None):
+        if XAControlServerApp.testing:
+            print CHANNEL, STATE
+        else:
+            print "DOING"
+        return {}
