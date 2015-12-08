@@ -12,7 +12,7 @@ __author__ = 'Marco Bartel'
 
 class xacontrol(object):
     def __init__(self):
-        XAControlServerApp.debug = True
+        XAControlServerApp.debug = False
 
         if sys.platform in ("posix", "linux2"):
             logDirectory = "/var/log"
