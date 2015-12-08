@@ -39,6 +39,7 @@ class xacontrol(object):
         # Attach the handler to the logger
         logger.addHandler(handler)
 
+
         # Make a class we can use to capture stdout and sterr in the log
         class MyLogger(object):
             def __init__(self, logger, level):
