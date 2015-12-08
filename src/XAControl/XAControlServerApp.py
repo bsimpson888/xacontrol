@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 import binascii
 import datetime
+import os
 import re
 import threading
 import uuid
+
+import psutil
 from pyramid.config import Configurator
 from pyramid.request import Request
 # noinspection PyUnresolvedReferences
@@ -144,7 +147,11 @@ class XAControlServerApp(object):
     @staticmethod
     @RestService("/status")
     def status_GET(request=None):
+
+        ownPID = os.getpid()
+        ownProcessInfo = psutil.Process(ownPID)
+        ownMemoryUsage = ownProcessInfo.memory_info()[0]
         return {
-            "MEMORY_USAGE": 12.5,
+            "MEMORY_USAGE": ownMemoryUsage,
         }
 
