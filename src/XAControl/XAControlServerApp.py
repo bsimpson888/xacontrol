@@ -150,7 +150,10 @@ class XAControlServerApp(object):
 
         ownPID = os.getpid()
         ownProcessInfo = psutil.Process(ownPID)
-        ownMemoryUsage = ownProcessInfo.memory_info()[0]
+        try:
+            ownMemoryUsage = ownProcessInfo.memory_info()[0]
+        except:
+            ownMemoryUsage = ownProcessInfo.get_memory_info()[0]
         return {
             "MEMORY_USAGE": ownMemoryUsage,
         }

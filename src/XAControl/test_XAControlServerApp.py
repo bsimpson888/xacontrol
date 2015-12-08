@@ -18,8 +18,6 @@ class TestXAControlServerApp(TestCase):
         self.testapp = TestApp(self.app.wsgiApp())
         self.testapp.authorization = ('Basic', (self.apiuser, self.apikey))
 
-
-
     def test_status_GET(self):
         res = self.testapp.get('/status', status=200)
         print res
