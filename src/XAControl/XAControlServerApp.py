@@ -1,72 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import binascii
-import datetime
 import os
 import re
-import threading
-import uuid
 
 import psutil
 from pyramid.config import Configurator
 from pyramid.request import Request
 # noinspection PyUnresolvedReferences
 from paste.httpheaders import AUTHORIZATION
+import XACPifaceRelayPlus
+from RestService import RestService, RestServiceObject
 
 __author__ = 'Marco Bartel'
-
-
-class RestServiceObject(object):
-    parameterRegex = re.compile(ur'\{(.*?)\}')
-
-    def __init__(self, method=None, route=None, callFunc=None):
-        self.method = method
-        self.route = route
-        self.routeParameters = []
-        rp = self.parameterRegex.findall(self.route)
-        for p in rp:
-            psplitted = p.split(":")
-            if len(psplitted) == 2:
-                self.routeParameters.append((psplitted[0], eval(psplitted[1])))
-                self.route = self.route.replace("{p}".format(p=p), "{p}".format(p=psplitted[0]))
-            else:
-                self.routeParameters.append((psplitted[0], unicode))
-
-        self.callFunc = callFunc
-        if self.method not in RestService.services:
-            RestService.services[self.method] = {}
-        RestService.services[self.method][self.route] = self
-
-    def call(self, context, request, **kwargs):
-        request.check_auth()
-        if request.response.status_code == 200:
-            for (pname, ptype) in self.routeParameters:
-                try:
-                    kwargs[pname] = ptype(request.matchdict[pname])
-                except ValueError:
-                    return {"ERROR": "BAD PARAMETERS"}
-
-            return self.callFunc(request=request, **kwargs)
-
-
-class RestService(object):
-    services = {}
-
-    def __init__(self, route):
-        self.route = route
-
-    def __call__(self, func):
-        restServiceObj = RestServiceObject(
-            method=func.__name__.split("_")[-1].upper(),
-            route=self.route,
-            callFunc=func
-        )
-
-        def inner(**kwargs):
-            restServiceObj.call(**kwargs)
-
-        return inner
-
 
 
 class XAControlServerRequest(Request):
@@ -109,6 +55,7 @@ class XAControlServerRequest(Request):
 
         return None
 
+
 class XAControlServerApp(object):
     testing = False
     debug = True
@@ -116,7 +63,7 @@ class XAControlServerApp(object):
     operators = {}
 
     def __init__(self):
-
+        RestServiceObject.server = self
         self.setupApp()
         # self.clearOperators()
 
@@ -147,7 +94,7 @@ class XAControlServerApp(object):
 
     @staticmethod
     @RestService("/status")
-    def status_GET(request=None):
+    def status_GET(request=None, server=None):
 
         ownPID = os.getpid()
         ownProcessInfo = psutil.Process(ownPID)
@@ -158,12 +105,3 @@ class XAControlServerApp(object):
         return {
             "MEMORY_USAGE": ownMemoryUsage,
         }
-
-    @staticmethod
-    @RestService("/relay/{CHANNEL:int}/{STATE:int}")
-    def relay_POST(request=None, CHANNEL=None, STATE=None):
-        if XAControlServerApp.testing:
-            print CHANNEL, STATE
-        else:
-            print "DOING"
-        return {}

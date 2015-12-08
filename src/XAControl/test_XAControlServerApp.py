@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from unittest import TestCase
+
+import time
 from webtest import TestApp
 from XAControl.XAControlServerApp import XAControlServerApp
 
@@ -32,7 +34,7 @@ class TestXAControlServerApp(TestCase):
             ),
             status=200
         )
-
+        time.sleep(1)
         STATE = 0
         res = self.testapp.post(
             '/relay/{CHANNEL}/{STATE}'.format(
